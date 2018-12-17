@@ -12,7 +12,10 @@ final class InstallmentsCalculator
 {
     private $calculator;
 
-    private $installmentValue;
+    /**
+     * @var CalculatorResult
+     */
+    private $result;
 
     /**
      * @var CalculatorResult[]
@@ -22,12 +25,13 @@ final class InstallmentsCalculator
     /**
      * InstallmentsCalculator constructor.
      * @param Calculator $calculator
+     * @param CalculatorResult $result
      * @throws \Exception
      */
-    public function __construct(Calculator $calculator)
+    public function __construct(Calculator $calculator, CalculatorResult $result)
     {
         $this->calculator = $calculator;
-        $this->installmentValue = round(ceil($calculator->getCarValue() / $calculator->getInstallments()) / 100, 2);
+        $this->result = $result;
 
         $this->build();
         $this->checkSum();
@@ -41,13 +45,12 @@ final class InstallmentsCalculator
         $installmentPayments = [];
 
         foreach(range(1, $this->calculator->getInstallments()) as $i) {
-            $calculator = new Calculator(
-                $this->installmentValue,
-                $this->calculator->getTaxPercentage() * 100,
-                1,
-                $this->calculator->getUserTime()->format(DATE_ATOM)
-            );
-            $installmentPayments[] = $calculator->build();
+            $installmentPayments[] = [
+                'basePrice' => floor($this->result->getBasePrice()->getBasePrice() / $this->calculator->getInstallments()),
+                'tax' => floor($this->result->getTax() / $this->calculator->getInstallments()),
+                'commission' => floor($this->result->getCommission() / $this->calculator->getInstallments()),
+                'total' => floor($this->result->getTotal() / $this->calculator->getInstallments())
+            ];
         }
 
         $this->installmentPayments = $installmentPayments;
@@ -62,31 +65,33 @@ final class InstallmentsCalculator
         $this->calculator->setInstallments(1);
         $result = $this->calculator->build();
 
-        $totalBasePrice = $totalCommission = $totalTax = 0;
+        $totalBasePrice = $totalCommission = $totalTax = $total = 0;
         foreach ($this->getInstallments() as $installment) {
-            $totalBasePrice += $installment->getBasePrice();
-            $totalCommission += $installment->getCommission();
-            $totalTax += $installment->getTax();
+            $totalBasePrice += $installment['basePrice'];
+            $totalCommission += $installment['commission'];
+            $totalTax += $installment['tax'];
+            $total += $installment['total'];
         }
 
         if ($totalBasePrice != $result->getBasePrice()->getBasePrice()) {
-            $this->installmentPayments[0]->getBasePrice()->setBasePrice(
-                $this->installmentPayments[0]->getBasePrice()->getBasePrice() +
-                ($result->getBasePrice() - $totalBasePrice)
-            );
+            $this->installmentPayments[0]['basePrice'] =
+                $this->installmentPayments[0]['basePrice'] + ($result->getBasePrice()->getBasePrice() - $totalBasePrice)
+            ;
         }
-
         if ($totalCommission != $result->getCommission()) {
-            $this->installmentPayments[0]->setCommission(
-                $this->installmentPayments[0]->getCommission() +
-                ($result->getCommission() - $totalCommission)
-            );
+            $this->installmentPayments[0]['commission'] =
+                $this->installmentPayments[0]['commission'] + ($result->getCommission() - $totalCommission)
+            ;
         }
         if ($totalTax != $result->getTax()) {
-            $this->installmentPayments[0]->setTax(
-                $this->installmentPayments[0]->getTax() +
-                ($result->getTax() - $totalTax)
-            );
+            $this->installmentPayments[0]['tax'] =
+                $this->installmentPayments[0]['tax'] + ($result->getTax() - $totalTax)
+            ;
+        }
+        if ($total != $result->getTotal()) {
+            $this->installmentPayments[0]['total'] =
+                $this->installmentPayments[0]['total'] + ($result->getTotal() - $total)
+            ;
         }
     }
 

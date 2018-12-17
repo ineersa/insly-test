@@ -61,7 +61,7 @@ final class CalculatorResult
         $this->tax = (new Tax($this->getBasePrice()->getBasePrice(), $this->calculator->getTaxPercentage()))->calc();
         $this->commission = (new Commission($this->basePrice->getBasePrice()))->calc();
         if ($this->calculator->getInstallments() > 1) {
-            $installmentsCalculator = new InstallmentsCalculator($this->calculator);
+            $installmentsCalculator = new InstallmentsCalculator($this->calculator, $this);
             $this->installments = $installmentsCalculator->getInstallments();
         }
     }
