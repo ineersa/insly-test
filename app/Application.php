@@ -47,10 +47,15 @@ class Application
                     break;
                 }
                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    $calculator = new Calculator($_POST['car_value'], $_POST['tax_percentage'], $_POST['installments'], $_POST['user_time']);
+                    $calculator = new Calculator(
+                        $_POST['car_value'],
+                        $_POST['tax_percentage'],
+                        $_POST['installments'],
+                        $_POST['user_time']
+                    );
                     $result = $calculator->build();
 
-                    require __DIR__ . '/../views/task2-form.php';
+                    require __DIR__ . '/../views/task2-result.php';
                     break;
                 }
             default:

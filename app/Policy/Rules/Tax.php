@@ -8,7 +8,9 @@
 
 namespace app\Policy\Rules;
 
-class Tax
+use app\Policy\Contracts\RuleContract;
+
+final class Tax implements RuleContract
 {
     private $base;
 
@@ -22,6 +24,6 @@ class Tax
 
     public function calc()
     {
-        return $this->base * $this->percent;
+        return ceil($this->base * $this->percent);
     }
 }

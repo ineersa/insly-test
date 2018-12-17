@@ -8,4 +8,5 @@ try {
 } catch (\Exception $e) {
     echo "ERROR!";
     echo $e->getMessage();
+    echo $e->getTraceAsString();
 }

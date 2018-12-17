@@ -5,6 +5,7 @@
  * Date: 12/17/18
  * Time: 10:08 AM
  */
+
 namespace app\Policy;
 
 final class Calculator
@@ -39,7 +40,7 @@ final class Calculator
      */
     public function setInstallments($installments)
     {
-        $installments = (int) $installments;
+        $installments = (int)$installments;
 
         if ($installments < 1 || $installments > 12) {
             throw new \Exception('Installments incorrect');
@@ -54,7 +55,7 @@ final class Calculator
      */
     public function setTaxPercentage($taxPercentage)
     {
-        $taxPercentage = (int) $taxPercentage;
+        $taxPercentage = (int)$taxPercentage;
 
         if ($taxPercentage < 0 || $taxPercentage > 100) {
             throw new \Exception('Tax percentage incorrect');
@@ -69,7 +70,7 @@ final class Calculator
      */
     public function setCarValue($carValue)
     {
-        $carValue = (int) $carValue;
+        $carValue = (int)$carValue;
 
         if ($carValue < 100 || $carValue > 100000) {
             throw new \Exception('Car value incorrect');
@@ -78,6 +79,10 @@ final class Calculator
         $this->carValue = $carValue;
     }
 
+    /**
+     * @return CalculatorResult
+     * @throws \Exception
+     */
     public function build()
     {
         return (new CalculatorResult($this))->calc();
@@ -112,7 +117,7 @@ final class Calculator
      */
     public function getCarValue()
     {
-        return $this->carValue * 100;
+        return ceil($this->carValue * 100);
     }
 
     /**

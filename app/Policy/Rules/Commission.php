@@ -7,7 +7,9 @@
  */
 namespace app\Policy\Rules;
 
-final class Commission
+use app\Policy\Contracts\RuleContract;
+
+final class Commission implements RuleContract
 {
     private $base;
 
@@ -20,6 +22,6 @@ final class Commission
 
     public function calc()
     {
-        return $this->base * self::PERCENT;
+        return ceil($this->base * self::PERCENT);
     }
 }
